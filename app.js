@@ -1,13 +1,7 @@
-// === CONFIG dinámico (HTTP/HTTPS + WS/WSS) ==============================
-const HOST = "3.225.81.202:5500";
-const PROTO = location.protocol === "https:" ? "https" : "http";
-const WSPROTO = PROTO === "https" ? "wss" : "ws";
-
-const API_BASE = `${PROTO}://${HOST}`;
-const API      = `${API_BASE}/api`;
-const WS       = `${WSPROTO}://${HOST}/ws`;
-
-// =======================================================================
+// === CONFIG ===
+const API_BASE = "http://3.225.81.202:5500";
+const API = `${API_BASE}/api`;
+const WS  = `ws://3.225.81.202:5500/ws`;
 
 const els = {
   apiBadge: document.getElementById("apiBadge"),
@@ -47,17 +41,13 @@ async function pingAPI(){
   try {
     const res = await fetch(`${API_BASE}/api/health`, { mode: "cors" });
     if (!res.ok) throw new Error("HTTP " + res.status);
-    if (els.apiBadge){
-      els.apiBadge.classList.remove("chip-err");
-      els.apiBadge.classList.add("chip-ok");
-      els.apiBadge.textContent = `API OK: ${API_BASE}`;
-    }
+    els.apiBadge.classList.remove("chip-err");
+    els.apiBadge.classList.add("chip-ok");
+    els.apiBadge.textContent = `API OK: ${API_BASE}`;
   } catch (e){
-    if (els.apiBadge){
-      els.apiBadge.classList.remove("chip-ok");
-      els.apiBadge.classList.add("chip-err");
-      els.apiBadge.textContent = `API ERROR: ${e.message}`;
-    }
+    els.apiBadge.classList.remove("chip-ok");
+    els.apiBadge.classList.add("chip-err");
+    els.apiBadge.textContent = `API ERROR: ${e.message}`;
   }
 }
 
@@ -128,7 +118,7 @@ async function loadData(){
 function initWS(){
   try{
     const ws = new WebSocket(WS);
-    ws.onopen  = () => els.wsBadge.textContent = "WS: conectado";
+    ws.onopen = () => els.wsBadge.textContent = "WS: conectado";
     ws.onclose = () => els.wsBadge.textContent = "WS: desconectado";
     ws.onerror = () => els.wsBadge.textContent = "WS: error";
     ws.onmessage = (ev) => {
@@ -142,19 +132,11 @@ function initWS(){
   }catch{/* ignore */}
 }
 
-// === Auto-refresco cada 2 s =============================================
-let pollTimer = null;
-function startPolling(){
-  if (pollTimer) clearInterval(pollTimer);
-  loadData();                            // primer tiro inmediato
-  pollTimer = setInterval(loadData, 2000);
-}
-
-// Eventos (el botón puede quedarse como extra)
+// Eventos
 els.refresh?.addEventListener("click", loadData);
-els.deviceId?.addEventListener("change", startPolling);
+els.deviceId?.addEventListener("change", loadData);
 
 // Arranque
 pingAPI();
 initWS();
-startPolling();
+loadData();
