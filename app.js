@@ -36,8 +36,9 @@ async function fetchJson(url){
   return data;                                   // fallback
 }
 
-// PING a /api/health
+// PING a /api/health (para mostrar chip de estado)
 async function pingAPI(){
+  if (!els.apiBadge) return;
   try {
     const res = await fetch(`${API_BASE}/api/health`, { mode: "cors" });
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -118,9 +119,9 @@ async function loadData(){
 function initWS(){
   try{
     const ws = new WebSocket(WS);
-    ws.onopen = () => els.wsBadge.textContent = "WS: conectado";
-    ws.onclose = () => els.wsBadge.textContent = "WS: desconectado";
-    ws.onerror = () => els.wsBadge.textContent = "WS: error";
+    ws.onopen = () => els.wsBadge && (els.wsBadge.textContent = "WS: conectado");
+    ws.onclose = () => els.wsBadge && (els.wsBadge.textContent = "WS: desconectado");
+    ws.onerror = () => els.wsBadge && (els.wsBadge.textContent = "WS: error");
     ws.onmessage = (ev) => {
       try{
         const msg = JSON.parse(ev.data);
@@ -132,7 +133,7 @@ function initWS(){
   }catch{/* ignore */}
 }
 
-// Eventos
+// Eventos manuales opcionales
 els.refresh?.addEventListener("click", loadData);
 els.deviceId?.addEventListener("change", loadData);
 
