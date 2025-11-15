@@ -53,7 +53,11 @@ async function pingAPI(){
 }
 
 function renderLastMove(row){
-  if (!row){ els.lastMove.classList.add("empty"); els.lastMove.textContent="—"; return; }
+  if (!row){
+    els.lastMove.classList.add("empty");
+    els.lastMove.textContent = "—";
+    return;
+  }
   els.lastMove.classList.remove("empty");
   els.lastMove.innerHTML = `
     <div class="row"><span class="key">Movimiento</span><span class="value">${row.mov_desc || row.mov_clave || row.id_mov || "—"}</span></div>
@@ -64,7 +68,11 @@ function renderLastMove(row){
 }
 
 function renderLastObs(row){
-  if (!row){ els.lastObs.classList.add("empty"); els.lastObs.textContent="—"; return; }
+  if (!row){
+    els.lastObs.classList.add("empty");
+    els.lastObs.textContent = "—";
+    return;
+  }
   els.lastObs.classList.remove("empty");
   els.lastObs.innerHTML = `
     <div class="row"><span class="key">Obstáculo</span><span class="value">${row.obs_desc || row.obs_clave || row.id_obs || "—"}</span></div>
@@ -115,25 +123,44 @@ async function loadData(){
   }
 }
 
-// WebSocket: dispara refresh en “movimiento” u “obstaculo”
+// WebSocket: dispara refresh en cualquier mensaje relacionado
 function initWS(){
   try{
     const ws = new WebSocket(WS);
-    ws.onopen = () => els.wsBadge && (els.wsBadge.textContent = "WS: conectado");
-    ws.onclose = () => els.wsBadge && (els.wsBadge.textContent = "WS: desconectado");
-    ws.onerror = () => els.wsBadge && (els.wsBadge.textContent = "WS: error");
+
+    ws.onopen = () => {
+      if (els.wsBadge) els.wsBadge.textContent = "WS: conectado";
+    };
+    ws.onclose = () => {
+      if (els.wsBadge) els.wsBadge.textContent = "WS: desconectado";
+    };
+    ws.onerror = () => {
+      if (els.wsBadge) els.wsBadge.textContent = "WS: error";
+    };
+
     ws.onmessage = (ev) => {
       try{
         const msg = JSON.parse(ev.data);
-        if (msg?.type === "movimiento" || msg?.type === "obstaculo") {
+        console.log("[WS] mensaje:", msg);
+
+        // tolerante: si el tipo contiene "mov" o "obst", refrescamos
+        const t = (msg?.type || "").toString().toLowerCase();
+
+        if (!t || t.includes("mov") || t.includes("obst")) {
           loadData();
         }
-      }catch{/* ignore */}
+      }catch(err){
+        console.warn("[WS] no JSON, refrescando por si acaso", err);
+        // Si no es JSON, igual recargamos todo
+        loadData();
+      }
     };
-  }catch{/* ignore */}
+  }catch(err){
+    console.error("[WS] error al crear WebSocket:", err);
+  }
 }
 
-// Eventos manuales opcionales
+// Eventos manuales
 els.refresh?.addEventListener("click", loadData);
 els.deviceId?.addEventListener("change", loadData);
 
