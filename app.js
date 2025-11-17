@@ -26,6 +26,36 @@ function fmtTs(ts){
   } catch { return String(ts); }
 }
 
+// --------- extraer velocidad desde parametros_json ----------
+function extraerVelocidad(row){
+  const p = row && row.parametros_json;
+  if (!p) return null;
+
+  let vel = null;
+
+  // Caso 1: viene como objeto JSON
+  if (typeof p === "object") {
+    vel = p.velocidad;
+  }
+  // Caso 2: viene como string JSON
+  else if (typeof p === "string") {
+    try {
+      const pj = JSON.parse(p);
+      vel = pj.velocidad;
+    } catch {
+      // ignoramos errores de parseo
+    }
+  }
+
+  if (typeof vel === "number") return vel;
+  if (typeof vel === "string") {
+    const v = Number(vel);
+    if (!Number.isNaN(v)) return v;
+  }
+  return null;
+}
+// -----------------------------------------------------------
+
 // fetch con CORS y tolerante al formato
 async function fetchJson(url){
   const res = await fetch(url, { mode: "cors" });
@@ -55,14 +85,19 @@ async function pingAPI(){
 function renderLastMove(row){
   if (!row){
     els.lastMove.classList.add("empty");
-    els.lastMove.textContent = "—";
+    els.lastMove.textContent="—";
     return;
   }
   els.lastMove.classList.remove("empty");
+
+  const vel = extraerVelocidad(row);
+  const velTxt = vel != null ? `${vel}` : "—";
+
   els.lastMove.innerHTML = `
     <div class="row"><span class="key">Movimiento</span><span class="value">${row.mov_desc || row.mov_clave || row.id_mov || "—"}</span></div>
     <div class="row"><span class="key">Origen</span><span>${row.origen ?? "—"}</span></div>
     <div class="row"><span class="key">Resultado</span><span>${row.resultado ?? "—"}</span></div>
+    <div class="row"><span class="key">Velocidad</span><span>${velTxt}</span></div>
     <div class="row"><span class="key">Fecha</span><span>${fmtTs(row.ts)}</span></div>
   `;
 }
@@ -70,7 +105,7 @@ function renderLastMove(row){
 function renderLastObs(row){
   if (!row){
     els.lastObs.classList.add("empty");
-    els.lastObs.textContent = "—";
+    els.lastObs.textContent="—";
     return;
   }
   els.lastObs.classList.remove("empty");
@@ -83,14 +118,18 @@ function renderLastObs(row){
 }
 
 function renderListMoves(rows){
-  els.moves.innerHTML = (rows && rows.length ? rows : []).map(r => `
-    <div class="item">
-      <div>${fmtTs(r.ts)}</div>
-      <div>${r.mov_desc || r.mov_clave || r.id_mov || "—"}</div>
-      <div>Origen: ${r.origen ?? "—"} • Res: ${r.resultado ?? "—"}</div>
-      <div>Modelo: ${r.clave_modelo ?? "—"}</div>
-    </div>
-  `).join("") || `<div class="card empty">Sin datos</div>`;
+  els.moves.innerHTML = (rows && rows.length ? rows : []).map(r => {
+    const vel = extraerVelocidad(r);
+    const velTxt = vel != null ? `${vel}` : "—";
+    return `
+      <div class="item">
+        <div>${fmtTs(r.ts)}</div>
+        <div>${r.mov_desc || r.mov_clave || r.id_mov || "—"}</div>
+        <div>Origen: ${r.origen ?? "—"} • Res: ${r.resultado ?? "—"}</div>
+        <div>Modelo: ${r.clave_modelo ?? "—"} • Vel: ${velTxt}</div>
+      </div>
+    `;
+  }).join("") || `<div class="card empty">Sin datos</div>`;
 }
 
 function renderListObs(rows){
@@ -123,44 +162,25 @@ async function loadData(){
   }
 }
 
-// WebSocket: dispara refresh en cualquier mensaje relacionado
+// WebSocket: dispara refresh en “movimiento” u “obstaculo”
 function initWS(){
   try{
     const ws = new WebSocket(WS);
-
-    ws.onopen = () => {
-      if (els.wsBadge) els.wsBadge.textContent = "WS: conectado";
-    };
-    ws.onclose = () => {
-      if (els.wsBadge) els.wsBadge.textContent = "WS: desconectado";
-    };
-    ws.onerror = () => {
-      if (els.wsBadge) els.wsBadge.textContent = "WS: error";
-    };
-
+    ws.onopen = () => els.wsBadge && (els.wsBadge.textContent = "WS: conectado");
+    ws.onclose = () => els.wsBadge && (els.wsBadge.textContent = "WS: desconectado");
+    ws.onerror = () => els.wsBadge && (els.wsBadge.textContent = "WS: error");
     ws.onmessage = (ev) => {
       try{
         const msg = JSON.parse(ev.data);
-        console.log("[WS] mensaje:", msg);
-
-        // tolerante: si el tipo contiene "mov" o "obst", refrescamos
-        const t = (msg?.type || "").toString().toLowerCase();
-
-        if (!t || t.includes("mov") || t.includes("obst")) {
+        if (msg?.type === "movimiento" || msg?.type === "obstaculo") {
           loadData();
         }
-      }catch(err){
-        console.warn("[WS] no JSON, refrescando por si acaso", err);
-        // Si no es JSON, igual recargamos todo
-        loadData();
-      }
+      }catch{/* ignore */}
     };
-  }catch(err){
-    console.error("[WS] error al crear WebSocket:", err);
-  }
+  }catch{/* ignore */}
 }
 
-// Eventos manuales
+// Eventos manuales opcionales
 els.refresh?.addEventListener("click", loadData);
 els.deviceId?.addEventListener("change", loadData);
 

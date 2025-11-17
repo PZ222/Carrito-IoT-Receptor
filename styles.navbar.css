@@ -1,0 +1,40 @@
+/* ===== NAVBAR COMPARTIDO ===== */
+:root { color-scheme: dark light; }
+*{ box-sizing: border-box; }
+a{ color: inherit; text-decoration: none; }
+a:visited{ color: inherit; }
+
+.topbar{
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ring, #263043);
+  background:
+    radial-gradient(900px 500px at 50% -30%, rgba(255,255,255,.04), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.25));
+  backdrop-filter: blur(6px);
+}
+.topbar .brand{
+  font: 800 clamp(16px,2.2vw,20px)/1 Inter, system-ui, Segoe UI, Roboto, Arial;
+  letter-spacing: .2px;
+  color: var(--text, #f1f5f9);
+}
+.topbar .nav{ margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+.topbar .pill{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 999px;
+  border: 1px solid var(--ring, #263043);
+  background:
+    radial-gradient(300px 180px at 70% -40%, rgba(255,255,255,.04), transparent 60%),
+    linear-gradient(180deg, rgba(15,20,32,.95), rgba(10,14,22,.92));
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+  color: var(--text, #eaeaea);
+  font-weight: 600;
+}
+.topbar .pill:hover{ transform: translateY(-1px); border-color: #3a4866; }
+.topbar .pill.active{
+  outline: 2px solid color-mix(in srgb, var(--brand, #ff4d4d) 55%, transparent);
+  box-shadow: 0 12px 40px color-mix(in srgb, var(--brand, #ff4d4d) 18%, transparent);
+}
+.topbar .pill .ico{ font-size: 15px; line-height: 1; }
