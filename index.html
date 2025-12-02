@@ -8,69 +8,79 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
+  <link rel="stylesheet" href="styles.navbar.css">
   <link rel="stylesheet" href="./styles.css">
-    <link rel="stylesheet" href="styles.navbar.css">
-
 </head>
-<body>
-  <!-- NAVBAR (ajustado a la estructura de carpetas) -->
+<body class="receptor-body">
+  <!-- NAVBAR -->
   <header class="topbar">
-    <div class="brand">Carrito IoT</div>
+    <div class="brand">Carrito IoT - Monitor</div>
     <nav class="nav">
-      <!-- vuelve al emisor (carpeta hermana) -->
-      <a class="pill" href="https://pz222.github.io/Carrito-IoT-Emisor/index.html"><span class="ico">🎮</span> Control</a>
-      <a class="pill active" href="https://pz222.github.io/Carrito-IoT-Receptor/"><span class="ico">🦻</span> Monitor</a>
-      <a class="pill" href="https://pz222.github.io/Carrito-IoT-Emisor/demos.html"><span class="ico">🧩</span> Demos</a>
+      <a class="pill" href="https://pz222.github.io/Carrito-IoT-Emisor/index.html">
+        <span class="ico">🎮</span> Control
+      </a>
+      <a class="pill active" href="https://pz222.github.io/Carrito-IoT-Receptor/">
+        <span class="ico">🦻</span> Monitor
+      </a>
+      <a class="pill" href="https://pz222.github.io/Carrito-IoT-Emisor/demos.html">
+        <span class="ico">🧩</span> Demos
+      </a>
     </nav>
   </header>
 
   <main class="container">
     <h1 class="page-title">Monitoreo</h1>
 
-    <!-- HUD: API / WS / Ping -->
+    <!-- HUD: API / WS -->
     <section class="hud">
       <span id="apiBadge" class="chip hint">API: http://3.225.81.202:5500</span>
       <span id="wsBadge" class="chip">WS: desconectado</span>
     </section>
 
-    <!-- Dispositivo -->
-    <section class="card">
-      <div class="card-title">Dispositivo</div>
-      <div class="row gap">
-        <label for="deviceId">ID:</label>
-        <input type="number" id="deviceId" value="1" min="1" class="small-input">
-        <span id="statusText" class="muted">Listo</span>
+    <!-- GRID PRINCIPAL: IZQ (estado) / DER (listas) -->
+    <div class="main-grid">
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="col-left">
+        <!-- Dispositivo -->
+        <section class="card">
+          <div class="card-title">Dispositivo</div>
+          <div class="row gap">
+            <label for="deviceId">ID:</label>
+            <input type="number" id="deviceId" value="1" min="1" class="small-input">
+            <span id="statusText" class="muted">Listo</span>
+          </div>
+        </section>
+
+        <!-- Últimos -->
+        <div class="grid-2-top">
+          <section class="card">
+            <div class="card-title">Último movimiento</div>
+            <div id="lastMove" class="data-block">—</div>
+          </section>
+
+          <section class="card">
+            <div class="card-title">Último obstáculo</div>
+            <div id="lastObs" class="data-block">—</div>
+          </section>
+        </div>
       </div>
-    </section>
 
-    <!-- Últimos -->
-    <div class="grid-2">
-      <section class="card">
-        <div class="card-title">Último movimiento</div>
-        <div id="lastMove" class="data-block">—</div>
-      </section>
+      <!-- COLUMNA DERECHA: LISTAS CON SCROLL INTERNO -->
+      <div class="col-right">
+        <section class="card card-list">
+          <div class="card-title">Movimientos (últimos 10)</div>
+          <div id="movesList" class="list list-scroll"></div>
+        </section>
 
-      <section class="card">
-        <div class="card-title">Último obstáculo</div>
-        <div id="lastObs" class="data-block">—</div>
-      </section>
-    </div>
-
-    <!-- Listas -->
-    <div class="grid-2">
-      <section class="card">
-        <div class="card-title">Movimientos (últimos 10)</div>
-        <div id="movesList" class="list"></div>
-      </section>
-
-      <section class="card">
-        <div class="card-title">Obstáculos (últimos 10)</div>
-        <div id="obsList" class="list"></div>
-      </section>
+        <section class="card card-list">
+          <div class="card-title">Obstáculos (últimos 10)</div>
+          <div id="obsList" class="list list-scroll"></div>
+        </section>
+      </div>
     </div>
 
     <footer class="footer">
-      <div class="chip muted">© Rafael • Carrito IoT</div>
+      <div class="chip muted chip-mini">© Rafael • Carrito IoT</div>
     </footer>
   </main>
 

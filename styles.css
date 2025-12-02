@@ -1,175 +1,241 @@
 /* ===========================
-   CarritoIoT - Receptor (Red)
+   Carrito IoT - Receptor
+   Layout compacto sin scroll global
    =========================== */
 
-/* Paleta (rojos oscuros) */
 :root{
   --bg-0:#07080C;
   --bg-1:#0D1220;
-  --bg-2:#0F1526;
   --panel:#0F1828;
-  --panel-2:#111B2E;
-  --card:#0F1A2B;
 
   --text:#F4F5F7;
   --muted:#C2C7D0;
 
-  --brand:#EF4444;   /* rojo principal */
-  --brand-700:#B91C1C;
-  --brand-800:#991B1B;
-
+  --brand:#EF4444;
   --ok:#10B981;
-  --warn:#F59E0B;
   --err:#F43F5E;
 
   --ring:#263245;
-  --shadow:0 18px 50px rgba(0,0,0,.35);
+  --shadow:0 18px 40px rgba(0,0,0,.35);
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
+*{
+  box-sizing:border-box;
   margin:0;
+  padding:0;
+}
+
+html,body{
+  height:100%;
+  overflow:hidden;              /* sin scroll global */
+}
+
+body.receptor-body{
   font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
   color:var(--text);
   background:
     radial-gradient(1200px 600px at 50% -20%, rgba(153,27,27,.25) 0%, transparent 60%),
     radial-gradient(900px 500px at 10% 120%, rgba(185,28,28,.18) 0%, transparent 60%),
     linear-gradient(180deg,var(--bg-1),var(--bg-0));
+  display:flex;
+  flex-direction:column;
 }
 
-/* ---------- Topbar ---------- */
-.topbar{
-  display:flex;align-items:center;gap:18px;
-  padding:14px 18px;border-bottom:1px solid var(--ring);
-  background:linear-gradient(180deg,#0B0E16,#0A0D14);
-  position:sticky;top:0;z-index:20;
-}
-.brand{font-weight:800;letter-spacing:.03em}
-.nav{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
-.nav a{
-  display:inline-flex;align-items:center;gap:10px;
-  padding:10px 14px;border-radius:14px;
-  border:1px solid var(--ring);text-decoration:none;color:var(--text);
-  background:linear-gradient(180deg,#0D1524,#0B111D);
-}
-.nav a.active{outline:2px solid var(--brand);}
+/* topbar viene de styles.navbar.css, no lo tocamos */
 
-/* ---------- Layout ---------- */
+/* ---------- Layout principal ---------- */
+
 .container{
-  max-width:1200px;margin:0 auto;padding:28px 16px 90px;
+  flex:1 1 auto;
+  max-width:1200px;
+  margin:0 auto;
+  padding:12px 16px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:0;                 /* clave para que no fuerce scroll */
 }
+
 .page-title{
-  text-align:center;margin:18px 0 26px;
-  font-size:clamp(1.8rem,2.2vw + 1rem,3.2rem);
-  font-weight:900;letter-spacing:.04em;
+  text-align:center;
+  margin:4px 0 6px;
+  font-size:clamp(1.6rem,1.9vw + 1rem,2.4rem);
+  font-weight:900;
+  letter-spacing:.04em;
   text-shadow:0 10px 30px rgba(0,0,0,.45);
 }
 
-/* Badges */
-.badge{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:8px 12px;border-radius:999px;
-  border:1px solid var(--ring);background:#0E1626;
-  font-weight:600
-}
-.badge.ws-ok{background:rgba(16,185,129,.08); border-color:#155E4D}
-.badge.ws-err{background:rgba(244,63,94,.12); border-color:#7F1D1D}
+/* HUD API / WS */
 
-/* Cards */
+.hud{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* chips */
+
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--ring);
+  background:linear-gradient(180deg,#0D1524,#0B111D);
+  font-size:.8rem;
+}
+.chip.hint span{font-family:monospace;}
+.chip.ok{
+  background:rgba(16,185,129,.12);
+  border-color:#145A4B;
+}
+.chip.err{
+  background:rgba(244,63,94,.12);
+  border-color:#7F1D1D;
+}
+.chip.muted{color:var(--muted);}
+.chip-mini{
+  padding:4px 8px;
+  font-size:.75rem;
+}
+
+/* ---------- grid principal: izquierda / derecha ---------- */
+
+.main-grid{
+  flex:1 1 auto;
+  display:grid;
+  grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);
+  gap:10px;
+  min-height:0;
+  align-items:stretch;
+}
+
+.col-left,
+.col-right{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:0;
+}
+
+/* tarjeta generica */
+
 .card{
   background:linear-gradient(180deg,var(--panel),#0B1322);
   border:1px solid var(--ring);
-  border-radius:18px; padding:18px; box-shadow:var(--shadow);
-}
-.card h3{margin:0 0 12px 0; font-size:1.05rem; color:#EAECEF}
-.card.empty{opacity:.7}
-
-/* Grid bloques superiores */
-.grid-top{
-  display:grid; gap:16px; margin-bottom:18px;
-  grid-template-columns:1fr auto auto;
-  align-items:center
+  border-radius:16px;
+  padding:12px 14px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
 
-/* Panel dispositivo + estado */
-.device-panel{display:grid; gap:12px; grid-template-columns:1fr auto; align-items:center}
-.input, select{
-  background:#0E1730; color:var(--text);
-  border:1px solid var(--ring); border-radius:12px;
-  padding:10px 12px; min-width:220px;
+.card-title{
+  font-weight:800;
+  font-size:.95rem;
 }
 
-/* Secciones lado a lado */
-.grid-2{
-  display:grid; gap:18px; grid-template-columns:1fr 1fr; align-items:start;
-}
-.section-title{margin:6px 0 10px 6px; font-weight:800; color:#EDEFF3}
+/* inputs / filas */
 
-/* Rows de detalle */
-.detail{
-  display:grid; gap:10px;
-  background:linear-gradient(180deg,var(--card),#0A1322);
+.row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.small-input{
+  width:80px;
+  border-radius:10px;
   border:1px solid var(--ring);
-  border-radius:14px; padding:16px 18px;
+  background:#0E1730;
+  color:var(--text);
+  padding:6px 8px;
+  font-family:monospace;
+  font-size:.85rem;
 }
-.detail .row{display:grid; grid-template-columns:160px 1fr; gap:10px}
-.detail .key{color:var(--muted)}
-.detail .value{font-weight:700}
+.small-input:focus{
+  outline:2px solid rgba(239,68,68,.65);
+}
 
-/* Listas últimas 10 */
+.muted{
+  color:var(--muted);
+  font-size:.85rem;
+}
+
+/* grid para últimas tarjetas arriba */
+
+.grid-2-top{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  min-height:0;
+}
+
+.data-block{
+  border-radius:10px;
+  border:1px solid var(--ring);
+  background:#0E1730;
+  padding:8px 10px;
+  font-size:.85rem;
+}
+
+/* listas de movimientos / obstáculos */
+
+.card-list{
+  flex:1 1 auto;
+  min-height:0;
+}
+
 .list{
-  display:grid; gap:12px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
+
+.list-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+  padding-right:2px;
+}
+
 .item{
-  display:grid; gap:6px;
+  border-radius:10px;
+  border:1px solid var(--ring);
   background:linear-gradient(180deg,#0C1527,#0A1220);
-  border:1px solid var(--ring); border-radius:14px; padding:14px 16px;
+  padding:8px 10px;
+  font-size:.8rem;
 }
-.item strong{color:#EDEFF5}
+.item strong{
+  color:#EDEFF5;
+}
 
-/* Footer */
+/* footer */
+
 .footer{
-  position:sticky; bottom:0; width:100%;
-  display:flex; justify-content:center; padding:12px 14px;
-  background:linear-gradient(180deg,#0B101A,#090D14);
-  border-top:1px solid var(--ring);
+  margin-top:4px;
+  display:flex;
+  justify-content:center;
 }
-
-/* Botones utilitarios */
-.btn{
-  display:inline-flex;align-items:center;gap:10px;
-  padding:10px 14px;border-radius:12px;
-  border:1px solid var(--ring); background:#0E1730; color:var(--text);
-  cursor:pointer; user-select:none;
-}
-.btn.primary{background:linear-gradient(180deg,#1B0B0C,#31090C); border-color:#511017}
-.btn.primary:hover{background:linear-gradient(180deg,#2A0E12,#4A0F16)}
-.btn.ghost{background:#0E1626}
-
-/* API chip */
-.api-chip{
-  padding:8px 10px;border-radius:10px;border:1px solid var(--ring);
-  background:#0E1626; color:#C9CFDA; font-size:.92rem;
-}
-
-/* Status text (pequeño, esquina) */
-.status-line{ color:#C8CED9; font-size:.95rem; }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1024px){
-  .grid-top{grid-template-columns:1fr; align-items:start}
-  .device-panel{grid-template-columns:1fr; gap:10px}
+
+@media (max-width:1024px){
+  .main-grid{
+    grid-template-columns:1fr;
+  }
 }
 
-@media (max-width: 860px){
-  .grid-2{grid-template-columns:1fr}
-  .detail .row{grid-template-columns:130px 1fr}
+@media (max-width:720px){
+  .grid-2-top{
+    grid-template-columns:1fr;
+  }
 }
 
-@media (max-width: 560px){
-  .topbar{gap:10px}
-  .nav{gap:8px}
-  .nav a{padding:8px 10px}
-  .detail .row{grid-template-columns:1fr; gap:4px}
+@media (max-width:520px){
+  .container{
+    padding:10px 10px 8px;
+  }
 }
